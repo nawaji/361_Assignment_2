@@ -10,20 +10,18 @@
 
 int read_instructions() {
 	char path[27] = "./image-service.txt";
-	char buffer[4];
+	char buffer[6];
 
 	FILE* readfile = fopen(path, "r");
 	if (readfile != NULL && !feof(readfile)) {
 		fgets(buffer, sizeof(buffer), readfile);
-		if (strncmp("run", buffer, strlen(buffer)) == 0) {
-			fclose(readfile);
-			return 1;
-		} else {
-			printf("Please provide \"prng-service.txt\" containing");
-			printf(" only the word \"run\" in it.\n");
+//		printf("buffer: %d\n", buffer);
+		for (int i = 0; i < sizeof(buffer); i++) {
+			printf("%c", buffer[i]);
 		}
+
 	} else {
-		printf("prng-service.txt or it's contents are missing.\n");
+		printf("image-service.txt or it's contents are missing.\n");
 		return 0;
 	}
 }

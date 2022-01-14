@@ -10,12 +10,12 @@
 
 int read_instructions() {
 	char path[27] = "./prng-service.txt";
-	char buffer[4];
+	char buffer[10];
 
 	FILE* readfile = fopen(path, "r");
 	if (readfile != NULL && !feof(readfile)) {
 		fgets(buffer, sizeof(buffer), readfile);
-		if (strncmp("run", buffer, strlen(buffer)) == 0) {
+		if (strncmp("run\n", buffer, strlen(buffer)) == 0) {
 			fclose(readfile);
 			return 1;
 		} else {
