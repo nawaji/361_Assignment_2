@@ -7,43 +7,92 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 int read_instructions() {
 	char path[27] = "./image-service.txt";
-	char buffer[6];
+	char buffer[20];
 
 	FILE* readfile = fopen(path, "r");
 	if (readfile != NULL && !feof(readfile)) {
 		fgets(buffer, sizeof(buffer), readfile);
-//		printf("buffer: %d\n", buffer);
 		for (int i = 0; i < sizeof(buffer); i++) {
-			printf("%c", buffer[i]);
+			if (buffer[i] == '\n') {
+				buffer[i] = '\0';
+				break;
+			}
 		}
+
+		int result = atoi(buffer);
+		return result;
 
 	} else {
 		printf("image-service.txt or it's contents are missing.\n");
-		return 0;
+		return -1;
 	}
 }
 
-void write_path() {
-	srand(time(NULL));
-	char path[27] = "./prng-service.txt";
-	char to_write[6];
+int check_img(char* filename) {
+	char* buffer = "png";
+	char* ext = strrchr(filename, '.');
+	if (!ext || ext == filename) { 
+		ext = " ";
+	}
+	ext = ext + 1;
+	return strncmp(buffer, ext, strlen(buffer));
+}
 
-	int key = rand() % 99999;
-	snprintf(to_write, sizeof(to_write), "%d", key);
+void write_path(char* pathname) {
+	char output[27] = "./image-service.txt";
 
-	FILE* writefile = fopen(path, "w");
+	FILE* writefile = fopen(output, "w");
 	if (writefile != NULL) {
-		fputs(to_write, writefile);
+		fputs(pathname, writefile);
+		fputs("\n", writefile);
 		fclose(writefile);
 	}
 }
 
+int total_images(int num) {
+	char *img_path = malloc(50 * sizeof(char));
+	char buffer[20] = "./image_service/";
+	memset(img_path, '\0', sizeof(img_path));
+	strcat(img_path, buffer);
+
+	DIR* currDir = opendir("./image_service/");
+	struct dirent *aDir;
+	int total = 0;
+
+	while((aDir = readdir(currDir)) != NULL) {
+		if (check_img(aDir->d_name) == 0) {
+			total++;
+		}
+	}
+	closedir(currDir);
+
+	printf("total images: %d\n", total);
+	total = num % total;
+	int curr = 0;
+
+	currDir = opendir("./image_service/");
+	while(curr < total) {
+		aDir = readdir(currDir);
+		curr++;
+	}
+	closedir(currDir);
+
+	strcat(img_path, aDir->d_name);
+	write_path(img_path);
+	free(img_path);
+}
+
 int main() {
-	if (read_instructions() == 1) {
-		write_path();
+	int num = read_instructions();
+	if (num > -1) {
+		total_images(num);
 	}
 
 	return 0;

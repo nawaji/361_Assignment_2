@@ -15,16 +15,23 @@ int read_instructions() {
 	FILE* readfile = fopen(path, "r");
 	if (readfile != NULL && !feof(readfile)) {
 		fgets(buffer, sizeof(buffer), readfile);
-		if (strncmp("run\n", buffer, strlen(buffer)) == 0) {
+		for (int i = 0; i < sizeof(buffer); i++) {
+			if (buffer[i] == '\n') {
+				buffer[i] = '\0';
+				break;
+			}
+		}
+		if (strncmp("run", buffer, strlen(buffer)) == 0) {
 			fclose(readfile);
 			return 1;
+
 		} else {
 			printf("Please provide \"prng-service.txt\" containing");
-			printf(" only the word \"run\" in it.\n");
+			printf(" only the word \"run\" followed by a newline.\n");
 		}
 	} else {
 		printf("prng-service.txt or it's contents are missing.\n");
-		return 0;
+		return -1;
 	}
 }
 
@@ -39,12 +46,13 @@ void write_number() {
 	FILE* writefile = fopen(path, "w");
 	if (writefile != NULL) {
 		fputs(to_write, writefile);
+		fputs("\n", writefile);
 		fclose(writefile);
 	}
 }
 
 int main() {
-	if (read_instructions() == 1) {
+	if (read_instructions() > -1) {
 		write_number();
 	}
 
