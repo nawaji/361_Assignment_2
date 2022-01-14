@@ -6,11 +6,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
 
 int read_instructions() {
 	char path[27] = "./image-service.txt";
@@ -23,6 +25,11 @@ int read_instructions() {
 			if (buffer[i] == '\n') {
 				buffer[i] = '\0';
 				break;
+			}
+
+			if (!isdigit(buffer[i])) {
+				printf("image-service.txt contains non-nums.\n");
+				return -1;
 			}
 		}
 
@@ -82,9 +89,10 @@ int total_images(int num) {
 		aDir = readdir(currDir);
 		curr++;
 	}
-	closedir(currDir);
 
 	strcat(img_path, aDir->d_name);
+	closedir(currDir);
+
 	write_path(img_path);
 	free(img_path);
 }
