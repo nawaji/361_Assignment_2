@@ -1,6 +1,7 @@
 /**************************************
  * User interface program
  * tojo@oregonstate.edu
+ * github_username: nawaji
  * 1/14/22
  *************************************/
 #include <stdio.h>
@@ -60,7 +61,7 @@ void call_program(char* exe) {
 
 int main() {
 	while (1) {
-		printf("\n1: Call the PRNG service.\n2: Call the Image Service.\n3: Display image path.\n4: Quit.\n\n");
+		printf("\n1: Call the PRNG service.\n2: Call the Image service.\n3: Display image path.\n4: Quit.\n\n");
 		printf("Type a number: ");
 		char input[20];
 		fgets(input, sizeof(input), stdin);
