@@ -14,6 +14,9 @@
 #include <unistd.h>
 
 
+// reads from "image-service.txt"
+// returns -1 if txt contains non nums
+// returns the psuedo-random number in "image-service.txt" if it contains one
 int read_instructions() {
 	char path[27] = "./image-service.txt";
 	char buffer[20];
@@ -27,21 +30,27 @@ int read_instructions() {
 				break;
 			}
 
-			if (!isdigit(buffer[i])) {
+			// cancel if non numbers are found
+			if (!isdigit(buffer[i]) && buffer[i] != '\0') {
 				printf("image-service.txt contains non-nums.\n");
+				fclose(readfile);
 				return -1;
 			}
 		}
 
 		int result = atoi(buffer);
+		fclose(readfile);
 		return result;
 
+	// blank file or image-service.txt does not exist
 	} else {
 		printf("image-service.txt or it's contents are missing.\n");
 		return -1;
 	}
 }
 
+// function used to check if file in directory
+// is an image (specifically png).
 int check_img(char* filename) {
 	char* buffer = "png";
 	char* ext = strrchr(filename, '.');
@@ -52,17 +61,22 @@ int check_img(char* filename) {
 	return strncmp(buffer, ext, strlen(buffer));
 }
 
-void write_path(char* pathname) {
-	char output[27] = "./image-service.txt";
-
-	FILE* writefile = fopen(output, "w");
+// function used to write content to a specific file
+// overwrites the file if it contained anything previously
+void write_file(char* content, char* filename) {
+	FILE* writefile = fopen(filename, "w");
 	if (writefile != NULL) {
-		fputs(pathname, writefile);
-		fputs("\n", writefile);
+		fputs(content, writefile);
 		fclose(writefile);
 	}
 }
 
+// Checks a directory called "/image_service/" within the same
+// directory as image.c (this file).
+// It will tally up all the files with the specific extension 
+// specified in check_img().
+// It picks a random file based on the psuedo-random num and writes
+// it to "image-service.txt".
 int total_images(int num) {
 	char *img_path = malloc(50 * sizeof(char));
 	char buffer[20] = "./image_service/";
@@ -73,6 +87,7 @@ int total_images(int num) {
 	struct dirent *aDir;
 	int total = 0;
 
+	// tally images
 	while((aDir = readdir(currDir)) != NULL) {
 		if (check_img(aDir->d_name) == 0) {
 			total++;
@@ -80,10 +95,10 @@ int total_images(int num) {
 	}
 	closedir(currDir);
 
-	printf("total images: %d\n", total);
 	total = num % total;
 	int curr = 0;
 
+	// obtain filename of specified image
 	currDir = opendir("./image_service/");
 	while(curr < total) {
 		aDir = readdir(currDir);
@@ -93,7 +108,8 @@ int total_images(int num) {
 	strcat(img_path, aDir->d_name);
 	closedir(currDir);
 
-	write_path(img_path);
+	// finally write path to image to text file
+	write_file(img_path, "./image-service.txt");
 	free(img_path);
 }
 
